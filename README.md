@@ -22,21 +22,6 @@ Optionally:
 
 ### Usage
 
-### Environment Variables
-
-The variables and the defaults are shown below.
-By default, the container does not depend on [Kubernetes](http://kubernetes.io/). 
-
-* `UPDATE=true` (default) will start freshclam daemon in background to watch for update antivirus definitions  
-  `UPDATE=false` will watch for first successful update from separate sidecar container before starting)
-* `UPDATE_ONLY=false` configure as a sidecar container and run the update process in the foreground
-
-### Ports
-
-This container exposes:
-
-* `3310` - The [Clam AV](http://www.clamav.net/) API
-
 The example below will start a single ClamAV instance.
 
 ```
@@ -45,6 +30,30 @@ docker run --name clamav -d -p 3310:3310 quay.io/ukhomeofficedigital/clamav:v0.1
 
 To use with [Kubernetes](http://kubernetes.io/) see the [kubernetes examples](examples/kubernetes.md).
 
+
+#### Environment Variables
+
+The variables and the defaults are shown below.
+By default, the container does not depend on [Kubernetes](http://kubernetes.io/). 
+
+* `UPDATE=true` (default) will start freshclam daemon in background to watch for update antivirus definitions  
+  `UPDATE=false` will watch for first successful update from separate sidecar container before starting)
+* `UPDATE_ONLY=true` configure as a sidecar container and run the update process in the foreground  
+  `UPDATE_ONLY=false` (default) will run clamd and freshclam as normal.  
+* `CLAMD_SETTINGS_CSV="LogVerbose yes,VirusEvent /custom_alert.sh"` See [clamd.conf](http://linux.die.net/man/5/clamd.conf) for more details  
+  and see [./clamd.conf](./clamd.conf) for the default settings.  
+  To use a use the clamd default setting, specify `"CLAMD_SETTINGS_CSV=Setting,AnotherSetting value"`
+  Note, clamd has already been configured appropriately for a container but some useful settings include:    
+  * `VirusEvent /path/to/alert_script.sh` If mounted in the container, will provide a custom alert facility
+  * `LogClean yes` Will log every scan performed
+* `FRESHCLAM_SETTINGS_CSV="LogVerbose yes"` See [freshclam.conf](http://linux.die.net/man/5/freshclam.conf) for more details  
+  and see [./freshclam.conf](freshclam.conf) for the default settings. See above for how this works.  
+  
+#### Ports
+
+This container exposes:
+
+* `3310` - Access the [Clam AV API](http://linux.die.net/man/8/clamd).
 
 ## Contributing
 

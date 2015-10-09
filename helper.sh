@@ -25,7 +25,7 @@ function wait_until_cmd() {
 function wait_until_listening() {
     ip=$1
     port=$2
-    if wait_until_cmd "echo > /dev/tcp/${ip}/$port" ; then
+    if wait_until_cmd "nc -z ${ip} $port" ; then
         return 0
     else
         return 1

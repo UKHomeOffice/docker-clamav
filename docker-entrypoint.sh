@@ -16,6 +16,9 @@ function update_setting() {
     file=$1
     name=$2
     value=$3
+
+    log_out "Updating '${file}' with setting:'${name}', value:'${value}'"
+
     if ! grep "^#*$name " $file >/dev/null ; then
         log_out "Error - invalid setting:${name} for file:${file}"
         exit 1
@@ -23,7 +26,7 @@ function update_setting() {
 
     if [ "$value" == "" ]; then
     	log_out "Deleting setting in ${file} with:${name}..."
-        sed -i "/${value} .*/d" $file
+        sed -i "/^#*${name} .*/d" ${file}
     else
     	log_out "Updating setting in ${file} with:${name} ${value}..."
         sed -i "s|^#*${name} .*$|${name} ${value}|g" ${file}

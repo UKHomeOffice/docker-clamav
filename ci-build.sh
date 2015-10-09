@@ -5,7 +5,7 @@ set -e
 TAG=clamav
 COUNT=0
 PORT=3310
-START_INSTANCE="docker run -v ${PWD}/data:/var/lib/clamav"
+START_INSTANCE="docker run --privileged=true -v ${PWD}/data:/var/lib/clamav"
 
 source ./helper.sh
 
@@ -67,21 +67,21 @@ echo "TESTING..."
 echo "=========="
 start_test "Simple start" true "${STD_CMD}"
 start_test "Start with custom settings" true "${STD_CMD} \
-           -e \"CLAMD_SETTINGS_CSV=LogClean no,StatsEnabled yes\" \
+           -e \"CLAMD_SETTINGS_CSV=LogClean no,StatsEnabled\" \
            -e \"FRESHCLAM_SETTINGS_CSV=OnUpdateExecute /bin/true wow\""
 
-#echo "Test CLAMD_SETTINGS_CSV add setting..."
-#${SUDO_CMD} docker exec -it ${INSTANCE} \
-#     grep "^LogClean no" /etc/clamd.conf
+echo "Test CLAMD_SETTINGS_CSV add setting..."
+${SUDO_CMD} docker exec -it ${INSTANCE} \
+     grep "^LogClean no" /etc/clamd.conf
 
-#echo "Test CLAMD_SETTINGS_CSV remove setting..."
-#if ${SUDO_CMD} docker exec -it ${INSTANCE} grep -v "^StatsEnabled" /etc/clamd.conf &> /dev/null ; then
-#    echo "Failed test for deleting entry..."
-#    exit 1
-#fi
-#echo "Test FRESHCLAM_SETTINGS_CSV add complex setting..."
-#${SUDO_CMD} docker exec -it ${INSTANCE} \
-#    grep "^OnUpdateExecute /bin/true wow" /etc/freshclam.conf
+echo "Test CLAMD_SETTINGS_CSV remove setting..."
+if ${SUDO_CMD} docker exec -it ${INSTANCE} grep "^StatsEnabled " /etc/clamd.conf ; then
+    echo "Failed test for deleting entry..."
+    exit 1
+fi
+echo "Test FRESHCLAM_SETTINGS_CSV add complex setting..."
+${SUDO_CMD} docker exec -it ${INSTANCE} \
+    grep "^OnUpdateExecute /bin/true wow" /etc/freshclam.conf
 
 touch ./data/1strun
 start_test "Test UPDATE=false mode" true "${STD_CMD} -e \"UPDATE=false\""

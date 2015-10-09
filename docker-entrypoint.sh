@@ -12,6 +12,7 @@ LOG_PREFIX=${LOG_PREFIX:-DOCKER-CLAMAV}
 function log_out() {
     echo "${LOG_PREFIX}:$@"
 }
+
 function update_setting() {
     file=$1
     name=$2
@@ -62,6 +63,7 @@ function update_clamd() {
 }
 
 if [ "${UPDATE_ONLY}" == "true" ]; then
+    touch /UPDATE_ONLY
     # Only run freshclam...
     update_freshclam
     log_out "Run one complete update..."
@@ -73,6 +75,7 @@ if [ "${UPDATE_ONLY}" == "true" ]; then
 else
     update_clamd
     if [ "${UPDATE}" == "true" ]; then
+        touch /UPDATE
         update_freshclam
 
         log_out "Run one complete update..."

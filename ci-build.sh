@@ -9,10 +9,6 @@ START_INSTANCE="docker run --privileged=true -v ${PWD}/data:/var/lib/clamav"
 
 source ./helper.sh
 
-function wait_until_started() {
-    wait_until_listening ${DOCKER_HOST_NAME} $PORT
-}
-
 function tear_down() {
     if [ "${TEAR_DOWN}" == "true" ]; then
         if docker ps -a | grep ${INSTANCE} &>/dev/null ; then
@@ -24,6 +20,11 @@ function tear_down() {
     fi
 }
 
+function wait_until_started() {
+    sleep 1
+    sudo docker exec -it ${INSTANCE} /readyness.sh POLL
+}
+
 function start_test() {
     tear_down
     COUNT=$((COUNT + 1))
@@ -31,16 +32,12 @@ function start_test() {
     INSTANCE=${TAG}_$COUNT
     echo "STARTING TEST:$1"
     shift
-    wait=$1
-    shift
     echo "Running:$@ --name ${INSTANCE} -p ${PORT}:3310 ${TAG}"
     bash -c "$@ --name ${INSTANCE} -d -p ${PORT}:3310 ${TAG}"
-    if [ "$wait" == "true" ]; then
-        if ! wait_until_started ; then
-            echo "Error, not started in time..."
-            ${SUDO_CMD} docker logs ${INSTANCE}
-            exit 1
-        fi
+    if ! wait_until_started ; then
+        echo "Error, not started in time..."
+        ${SUDO_CMD} docker logs ${INSTANCE}
+        exit 1
     fi
 }
 
@@ -65,8 +62,8 @@ ${SUDO_CMD} docker build -t ${TAG} .
 echo "=========="
 echo "TESTING..."
 echo "=========="
-start_test "Simple start" true "${STD_CMD}"
-start_test "Start with custom settings" true "${STD_CMD} \
+start_test "Simple start" "${STD_CMD}"
+start_test "Start with custom settings" "${STD_CMD} \
            -e \"CLAMD_SETTINGS_CSV=LogClean no,StatsEnabled\" \
            -e \"FRESHCLAM_SETTINGS_CSV=OnUpdateExecute /bin/true wow\""
 
@@ -84,12 +81,12 @@ ${SUDO_CMD} docker exec -it ${INSTANCE} \
     grep "^OnUpdateExecute /bin/true wow" /etc/freshclam.conf
 
 touch ./data/1strun
-start_test "Test UPDATE=false mode" true "${STD_CMD} -e \"UPDATE=false\""
+start_test "Test UPDATE=false mode" "${STD_CMD} -e \"UPDATE=false\""
 
 rm ./data/1strun
-start_test "Test UPDATE_ONLY=true mode" false "${STD_CMD} -e \"UPDATE_ONLY=true\""
+start_test "Test UPDATE_ONLY=true mode" "${STD_CMD} -e \"UPDATE_ONLY=true\""
 echo "Started now polling for mutex file..."
-if ! wait_until_cmd "ls ./data/1strun" ; then
+if ! wait_until_cmd "${SUDO_CMD} ls ./data/1strun" ; then
     echo "Error, not detecting mutex file???"
     ${SUDO_CMD} docker logs ${INSTANCE}
     exit 1

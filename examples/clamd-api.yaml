@@ -1,13 +1,3 @@
-# Example use in Kubernetes
-
-## Example POD with two processes
-
-This example will create a single POD with two containers:
-
-* clamd - will run the api
-* freshclam - will ensure the api has upto date virus definitions
-
-```yaml
 apiVersion: v1
 kind: ReplicationController
 metadata:
@@ -60,4 +50,3 @@ spec:
       - name: avdata
         source:
           emptyDir: {}
-```

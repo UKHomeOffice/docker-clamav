@@ -5,7 +5,7 @@ set -e
 TAG=clamav
 COUNT=0
 PORT=3310
-START_INSTANCE="docker run --privileged=true -v ${PWD}/data:/var/lib/clamav"
+START_INSTANCE="docker run --privileged=true -v ${PWD}/data/freshclam:/var/run/freshclam -v ${PWD}/data/clamd:/var/lib/clamd"
 
 source ./helper.sh
 
@@ -43,11 +43,13 @@ function start_test() {
 
 # Cope with local builds with docker machine...
 if [ "${DOCKER_MACHINE_NAME}" == "" ]; then
+    echo "NO docker machine...${DOCKER_MACHINE_NAME}"
     DOCKER_HOST_NAME=localhost
     SUDO_CMD=sudo
     # On travis... need to do this for it to work!
     ${SUDO_CMD} service docker restart ; sleep 10
 else
+    echo "Docker machine: ${DOCKER_MACHINE_NAME}"
     DOCKER_HOST_NAME=$(docker-machine ip ${DOCKER_MACHINE_NAME})
     TEAR_DOWN=true
     SUDO_CMD=""
@@ -80,13 +82,13 @@ echo "Test FRESHCLAM_SETTINGS_CSV add complex setting..."
 ${SUDO_CMD} docker exec -it ${INSTANCE} \
     grep "^OnUpdateExecute /bin/true wow" /etc/freshclam.conf
 
-touch ./data/1strun
+touch ./data/freshclam/1strun
 start_test "Test UPDATE=false mode" "${STD_CMD} -e \"UPDATE=false\""
 
-rm ./data/1strun
+rm ./data/freshclam/1strun
 start_test "Test UPDATE_ONLY=true mode" "${STD_CMD} -e \"UPDATE_ONLY=true\""
 echo "Started now polling for mutex file..."
-if ! wait_until_cmd "${SUDO_CMD} ls ./data/1strun" ; then
+if ! wait_until_cmd "${SUDO_CMD} ls ./data/freshclam/1strun" ; then
     echo "Error, not detecting mutex file???"
     ${SUDO_CMD} docker logs ${INSTANCE}
     exit 1

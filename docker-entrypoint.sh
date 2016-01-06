@@ -4,7 +4,8 @@ set -e
 
 UPDATE=${UPDATE:-true}
 UPDATE_ONLY=${UPDATE_ONLY:-false}
-FIRST_UPDATE_MUTEX_FLAG=/var/lib/clamav/1strun
+FIRST_UPDATE_MUTEX_FLAG=${FIRST_UPDATE_MUTEX_FLAG:-/var/run/freshclam/1strun}
+FIRST_UPDATE_MUTEX_DIR=$(dirname ${FIRST_UPDATE_MUTEX_FLAG})
 CLAMD_CONF=/etc/clamd.conf
 FRESHCLAM_CONF=/etc/freshclam.conf
 LOG_PREFIX=${LOG_PREFIX:-DOCKER-CLAMAV}
@@ -69,6 +70,7 @@ if [ "${UPDATE_ONLY}" == "true" ]; then
     log_out "Run one complete update..."
     freshclam "@$"
     log_out "Signalling update complete with file mutex:${FIRST_UPDATE_MUTEX_FLAG}..."
+    mkdir -p ${FIRST_UPDATE_MUTEX_DIR}
     touch ${FIRST_UPDATE_MUTEX_FLAG}
     log_out "Running freshclam daemon (foreground process)..."
     exec freshclam -d "@$"

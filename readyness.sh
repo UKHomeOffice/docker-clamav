@@ -17,12 +17,12 @@ function run_test() {
 
 if [ -f /UPDATE_ONLY ]; then
     # Only check for freshclam...
-    run_test "${FRESHCLAM_TEST}" $1
+      run_test eval "${FRESHCLAM_TEST}" $1
 else
     # Test for clamd
     run_test ${CLAMD_TEST} $1
 
     if [ -f /UPDATE ]; then
-        run_test "${FRESHCLAM_TEST}" $1
+        run_test eval "${FRESHCLAM_TEST}" $1
     fi
 fi

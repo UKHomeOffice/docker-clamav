@@ -63,15 +63,16 @@ function update_clamd() {
 }
 
 if [ "${UPDATE_ONLY}" == "true" ]; then
-    touch /UPDATE_ONLY
-    # Only run freshclam...
-    update_freshclam
-    log_out "Run one complete update..."
-    freshclam "@$"
-    log_out "Signalling update complete with file mutex:${FIRST_UPDATE_MUTEX_FLAG}..."
-    touch ${FIRST_UPDATE_MUTEX_FLAG}
-    log_out "Running freshclam daemon (foreground process)..."
-    exec freshclam -d "@$"
+      touch /UPDATE_ONLY
+  fi
+      # Only run freshclam...
+      update_freshclam
+      log_out "Run one complete update..."
+      freshclam "@$" || true
+      log_out "Signalling update complete with file mutex:${FIRST_UPDATE_MUTEX_FLAG}..."
+      touch ${FIRST_UPDATE_MUTEX_FLAG}
+      log_out "Running freshclam daemon (foreground process)..."
+      exec freshclam -d "@$"
 else
     update_clamd
     if [ "${UPDATE}" == "true" ]; then

@@ -1,20 +1,23 @@
 FROM quay.io/ukhomeofficedigital/centos-base
 
-RUN yum install -y epel-release && \
-    yum install -y \
-        clamav-server \
-        clamav-data \
-        clamav-update \
-        clamav-filesystem \
-        clamav \
-        clamav-lib \
-    yum clean all
+ENV CLAM_VERSION=0.99.2
+RUN yum install -y gcc openssl-devel wget make
 
+RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.gz && \
+    tar xvzf clamav-${CLAM_VERSION}.tar.gz && \
+    cd clamav-${CLAM_VERSION} && \
+    ./configure && \
+    make && make install
+
+RUN  mkdir /usr/local/share/clamav
+
+RUN yum remove gcc make wget #cleanup
+RUN yum update -y && yum clean all
 RUN mkdir /var/run/clamav && \
     chmod 750 /var/run/clamav
 
 # Configure Clam AV...
-ADD ./*.conf /etc/
+ADD ./*.conf /usr/local/etc/
 ADD ./helper.sh /
 ADD ./readyness.sh /
 

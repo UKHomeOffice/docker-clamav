@@ -6,7 +6,7 @@ TAG=clamav
 COUNT=0
 PORT=3310
 START_INSTANCE="docker run --privileged=true -v ${PWD}/data:/var/lib/clamav"
-
+FILE="${PWD}/data/daily.*"
 source ./helper.sh
 
 function tear_down() {
@@ -63,22 +63,33 @@ echo "=========="
 echo "TESTING..."
 echo "=========="
 start_test "Simple start" "${STD_CMD}"
+start=`date +%s`
+x=0
+while [ "$x" -lt 100 -a ! -e $FILE ]; do
+ x=$((x+1))
+   echo "daily.cvd not yet downloaded. Sleeping..."
+ sleep 20
+done
+end=`date +%s`
+
+runtime=$((end-start))
+echo "It took $runtime seconds to get cve's"
 start_test "Start with custom settings" "${STD_CMD} \
            -e \"CLAMD_SETTINGS_CSV=LogClean no,StatsEnabled\" \
            -e \"FRESHCLAM_SETTINGS_CSV=OnUpdateExecute /bin/true wow\""
 
 echo "Test CLAMD_SETTINGS_CSV add setting..."
 ${SUDO_CMD} docker exec -it ${INSTANCE} \
-     grep "^LogClean no" /etc/clamd.conf
+     grep "^LogClean no" /usr/local/etc/clamd.conf
 
 echo "Test CLAMD_SETTINGS_CSV remove setting..."
-if ${SUDO_CMD} docker exec -it ${INSTANCE} grep "^StatsEnabled " /etc/clamd.conf ; then
+if ${SUDO_CMD} docker exec -it ${INSTANCE} grep "^StatsEnabled " /usr/local/etc/clamd.conf ; then
     echo "Failed test for deleting entry..."
     exit 1
 fi
 echo "Test FRESHCLAM_SETTINGS_CSV add complex setting..."
 ${SUDO_CMD} docker exec -it ${INSTANCE} \
-    grep "^OnUpdateExecute /bin/true wow" /etc/freshclam.conf
+    grep "^OnUpdateExecute /bin/true wow" /usr/local/etc/freshclam.conf
 
 touch ./data/1strun
 start_test "Test UPDATE=false mode" "${STD_CMD} -e \"UPDATE=false\""
@@ -91,3 +102,29 @@ if ! wait_until_cmd "${SUDO_CMD} ls ./data/1strun" ; then
     ${SUDO_CMD} docker logs ${INSTANCE}
     exit 1
 fi
+#testing clamd-rest container.
+
+${SUDO_CMD} docker build -t ${TAG}-rest clamav-rest
+
+#start container.
+docker run -itd -p 8080:8080 --name=clamav-rest -e HOST=clamav_1 --link clamav_1:clamav_1 clamav-rest
+sleep 20 #wait for app to start
+REST_CMD=$( curl -w %{http_code} -s --output /dev/null localhost:8080)
+VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" localhost:8080/scan | grep -o false)
+
+if [ $REST_CMD == "200" ]; then
+  if [ $VIRUS_TEST == "false" ]; then
+      echo "SUCCESS rest api working and detecting viruses Correctly"
+      exit 0
+  else
+    echo "FAILED rest api not detecting co correctly"
+    exit 1
+  fi
+else
+  echo "rest api not starting."
+  exit 1
+fi
+  
+  
+  
+  

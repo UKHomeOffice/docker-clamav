@@ -5,8 +5,8 @@ set -e
 UPDATE=${UPDATE:-true}
 UPDATE_ONLY=${UPDATE_ONLY:-false}
 FIRST_UPDATE_MUTEX_FLAG=/var/lib/clamav/1strun
-CLAMD_CONF=/etc/clamd.conf
-FRESHCLAM_CONF=/etc/freshclam.conf
+CLAMD_CONF=/usr/local/etc/clamd.conf
+FRESHCLAM_CONF=/usr/local/etc/freshclam.conf
 LOG_PREFIX=${LOG_PREFIX:-DOCKER-CLAMAV}
 
 function log_out() {

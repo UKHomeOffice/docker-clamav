@@ -11,7 +11,7 @@ RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.
 
 RUN  mkdir /usr/local/share/clamav
 
-RUN yum remove gcc make wget #cleanup
+RUN yum remove -y gcc make wget #cleanup
 RUN yum update -y && yum clean all
 RUN mkdir /var/run/clamav && \
     chmod 750 /var/run/clamav

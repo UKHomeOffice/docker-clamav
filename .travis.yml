@@ -4,4 +4,4 @@ services:
   - docker
 
 script:
-  - ./ci-build.sh
+  - sudo ./ci-build.sh

@@ -37,7 +37,7 @@ spec:
           cpu: 200m
           memory: 400M
       - name: clamd-rest
-        image: quay.io/gileshinchcliff/clamav-rest:test 
+        image: quay.io/ukhomeofficedigital/clamav-rest:v1.1.0 
         imagePullPolicy: Always
         env:
         - name: HOST
@@ -57,10 +57,10 @@ spec:
           timeoutSeconds: 2
         resources:
          limits:
-          cpu: 800m
+          cpu: 300m
           memory: 800M
       - name: clamd
-        image: quay.io/gileshinchcliff/clamav:testing
+        image: quay.io/ukhomeofficedigital/clamav:v1.1.0
         imagePullPolicy: Always
         env:
         - name: UPDATE
@@ -83,7 +83,7 @@ spec:
           cpu: 200m
           memory: 400M
       - name: freshclam
-        image: quay.io/gileshinchcliff/clamav:testing
+        image: quay.io/ukhomeofficedigital/clamav:v1.1.0
         imagePullPolicy: Always
         env:
         - name: UPDATE_ONLY

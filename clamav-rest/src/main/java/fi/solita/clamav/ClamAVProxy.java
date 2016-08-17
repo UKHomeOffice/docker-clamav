@@ -24,8 +24,8 @@ public class ClamAVProxy {
      */
     @RequestMapping("/")
     public String ping() throws IOException {
-      ClamAVClient a = new ClamAVClient(hostname, port);
-      return "Clamd responding: " + a.ping() + "\n";
+        ClamAVClient a = new ClamAVClient(hostname, port);
+        return a.ping() + "\n";
     }
     
     /**
@@ -33,11 +33,15 @@ public class ClamAVProxy {
      */
     @RequestMapping(value="/scan", method=RequestMethod.POST)
     public @ResponseBody String handleFileUpload(@RequestParam("name") String name,
-        @RequestParam("file") MultipartFile file) throws IOException{
-          if (!file.isEmpty()) {
+           @RequestParam("file") MultipartFile file) throws IOException {
+
+        if (!file.isEmpty()) {
             ClamAVClient a = new ClamAVClient(hostname, port);
             byte[] r = a.scan(file.getInputStream());
-            return "Everything ok : " + ClamAVClient.isCleanReply(r) + "\n";
-        } else throw new IllegalArgumentException("empty file");
+            return ClamAVClient.isCleanReply(r) + "\n";
+        }
+        else {
+            throw new IllegalArgumentException("empty file");
+        }
     }
 }

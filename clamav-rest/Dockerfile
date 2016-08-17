@@ -1,21 +1,18 @@
-FROM quay.io/ukhomeofficedigital/centos-base
+FROM quay.io/ukhomeofficedigital/centos-base:latest
 
 MAINTAINER lokori <antti.virtanen@iki.fi>
 
 RUN yum update -y 
 RUN yum install -y java-1.8.0-openjdk
-
-# jar command
-RUN yum install -y java-1.8.0-openjdk-devel
-
 RUN yum clean all
 
 # Set environment variables.
 ENV HOME /root
+ADD . /build/
+WORKDIR /build/
+RUN /build/maven-build.sh
 
-# Get the JAR file 
-CMD mkdir /var/clamav-rest
-COPY target/clamav-rest-1.0.0.jar /var/clamav-rest/
+# Get the JAR file
 
 # Define working directory.
 WORKDIR /var/clamav-rest/

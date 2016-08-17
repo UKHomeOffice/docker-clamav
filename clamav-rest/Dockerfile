@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/centos-base
+FROM quay.io/ukhomeofficedigital/centos-base:latest
 
 MAINTAINER lokori <antti.virtanen@iki.fi>
 

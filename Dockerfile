@@ -1,18 +1,17 @@
 FROM quay.io/ukhomeofficedigital/centos-base:latest
 
 ENV CLAM_VERSION=0.99.2
-RUN yum install -y gcc openssl-devel wget make
 
-RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.gz && \
+RUN yum install -y gcc openssl-devel wget make && \
+    wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.gz && \
     tar xvzf clamav-${CLAM_VERSION}.tar.gz && \
     cd clamav-${CLAM_VERSION} && \
     ./configure && \
-    make && make install
+    make && make install && \
+    yum remove -y gcc make wget && \
+    yum update -y && yum clean all
 
-RUN  mkdir /usr/local/share/clamav
-
-RUN yum remove -y gcc make wget #cleanup
-RUN yum update -y && yum clean all
+RUN mkdir /usr/local/share/clamav
 RUN mkdir /var/run/clamav && \
     chmod 750 /var/run/clamav
 

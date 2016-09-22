@@ -5,9 +5,8 @@ set -e
 TAG=clamav
 COUNT=0
 PORT=3310
-START_INSTANCE="docker run --privileged=true -v ${PWD}/data:/var/lib/clamav"
-FILE="${PWD}/data/daily.*"
-source ./helper.sh
+
+STD_CMD="${SUDO_CMD} ${START_INSTANCE}"
 
 function tear_down() {
     if [ "${TEAR_DOWN}" == "true" ]; then
@@ -21,38 +20,23 @@ function tear_down() {
 }
 
 function wait_until_started() {
-    sleep 1
-    sudo docker exec -it ${INSTANCE} /readyness.sh POLL
+    max_retries=20
+    wait_time=${WAIT_TIME:-5}
+    retries=0
+    cmd="$@"
+    while ! $cmd; do
+        echo "waiting for command to succeed"
+        (($retries++)) 
+        if (($retries==$max_retries)); then
+           echo "Test Failed"
+           return 1
+        fi
+        sleep $wait_time
+    done
+    echo "Test Succeeded"
+    return 0
 }
 
-function start_test() {
-    tear_down
-    COUNT=$((COUNT + 1))
-    PORT=$((PORT + 1))
-    INSTANCE=${TAG}_$COUNT
-    echo "STARTING TEST:$1"
-    shift
-    echo "Running:$@ --name ${INSTANCE} -p ${PORT}:3310 ${TAG}"
-    bash -c "$@ --name ${INSTANCE} -d -p ${PORT}:3310 ${TAG}"
-    if ! wait_until_started ; then
-        echo "Error, not started in time..."
-        ${SUDO_CMD} docker logs ${INSTANCE}
-        exit 1
-    fi
-}
-
-# Cope with local builds with docker machine...
-if [ "${DOCKER_MACHINE_NAME}" == "" ]; then
-    DOCKER_HOST_NAME=localhost
-    SUDO_CMD=sudo
-    # On travis... need to do this for it to work!
-    ${SUDO_CMD} service docker restart ; sleep 10
-else
-    DOCKER_HOST_NAME=$(docker-machine ip ${DOCKER_MACHINE_NAME})
-    TEAR_DOWN=true
-    SUDO_CMD=""
-fi
-STD_CMD="${SUDO_CMD} ${START_INSTANCE}"
 
 echo "========"
 echo "BUILD..."
@@ -60,54 +44,40 @@ echo "========"
 ${SUDO_CMD} docker build -t ${TAG} .
 
 echo "=========="
-echo "TESTING..."
+echo "STARTING CLAMAV CONTAINER..."
 echo "=========="
-start_test "Simple start" "${STD_CMD}"
-start=`date +%s`
-x=0
-while [ "$x" -lt 100 -a ! -e $FILE ]; do
- x=$((x+1))
-   echo "daily.cvd not yet downloaded. Sleeping..."
- sleep 20
-done
-end=`date +%s`
+docker run -d --name=clamav -p ${PORT}:3310 ${TAG}
 
-runtime=$((end-start))
-echo "It took $runtime seconds to get cve's"
-start_test "Start with custom settings" "${STD_CMD} \
-           -e \"CLAMD_SETTINGS_CSV=LogClean no,StatsEnabled\" \
-           -e \"FRESHCLAM_SETTINGS_CSV=OnUpdateExecute /bin/true wow\""
+echo "=========="
+echo "TESTING FRESHCLAM PROCESS..."
+echo "=========="
 
-echo "Test CLAMD_SETTINGS_CSV add setting..."
-${SUDO_CMD} docker exec -it ${INSTANCE} \
-     grep "^LogClean no" /usr/local/etc/clamd.conf
-
-echo "Test CLAMD_SETTINGS_CSV remove setting..."
-if ${SUDO_CMD} docker exec -it ${INSTANCE} grep "^StatsEnabled " /usr/local/etc/clamd.conf ; then
-    echo "Failed test for deleting entry..."
+RUN_FRESHCLAM_TEST=$(docker exec -t clamav bash -c "freshclam | grep -q 'bytecode.cvd is up to date'")
+if ! wait_until_started "${RUN_FRESHCLAM_TEST}"; then
+    echo "Error, not started in time..."
+    docker logs clamav
     exit 1
 fi
-echo "Test FRESHCLAM_SETTINGS_CSV add complex setting..."
-${SUDO_CMD} docker exec -it ${INSTANCE} \
-    grep "^OnUpdateExecute /bin/true wow" /usr/local/etc/freshclam.conf
 
-touch ./data/1strun
-start_test "Test UPDATE=false mode" "${STD_CMD} -e \"UPDATE=false\""
+sleep 10 #wait for clamd process to start
+echo "=========="
+echo "TESTING CLAMD PROCESS..."
+echo "=========="
 
-rm ./data/1strun
-start_test "Test UPDATE_ONLY=true mode" "${STD_CMD} -e \"UPDATE_ONLY=true\""
-echo "Started now polling for mutex file..."
-if ! wait_until_cmd "${SUDO_CMD} ls ./data/1strun" ; then
-    echo "Error, not detecting mutex file???"
-    ${SUDO_CMD} docker logs ${INSTANCE}
+RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan eicar.com | grep -q 'Infected files: 1'")
+
+if ! wait_until_started "${RUN_CLAMD_TEST}"; then
+    echo "Error, not started in time..."
+    docker logs clamav
     exit 1
 fi
+
 #testing clamd-rest container.
 
-${SUDO_CMD} docker build -t ${TAG}-rest clamav-rest
+docker build -t ${TAG}-rest clamav-rest
 
 #start container.
-docker run -itd -p 8080:8080 --name=clamav-rest -e HOST=clamav_1 --link clamav_1:clamav_1 clamav-rest
+docker run -id -p 8080:8080 --name=clamav-rest -e HOST=clamav --link clamav:clamav clamav-rest
 sleep 20 #wait for app to start
 REST_CMD=$( curl -w %{http_code} -s --output /dev/null localhost:8080)
 VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" localhost:8080/scan | grep -o false)

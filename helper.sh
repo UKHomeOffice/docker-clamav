@@ -23,4 +23,3 @@ function wait_until_cmd() {
     echo
     return 1
 }
-

@@ -95,7 +95,7 @@ spec:
             - /healthcheck.sh
           initialDelaySeconds: 60
           timeoutSeconds: 2
-        readinessProbe:
+        livenessProbe:
           exec:
             command:
             - /healthcheck.sh

@@ -16,7 +16,7 @@ ENV HOME /root
 # Get the JAR file 
 CMD mkdir /var/clamav-rest
 COPY target/clamav-rest-1.0.0.jar /var/clamav-rest/
-
+COPY healthcheck.sh /healthcheck.sh
 # Define working directory.
 WORKDIR /var/clamav-rest/
 

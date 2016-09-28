@@ -1,0 +1,91 @@
+pipeline:
+  test_build:
+    image: docker:1.11
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - apk add --no-cache bash sed grep bc coreutils
+      - ./ci-build.sh
+    when:
+      event: [push, pull_request]
+  
+  build_clamav:
+    image: docker:1.11
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - docker build -t clamav .
+    when:
+      branch: master
+      event: push
+  
+  build_clamav-rest:
+    image: docker:1.11
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - docker build -t clamav-rest clamav-rest
+    when:
+      branch: master
+      event: push
+  
+  clamav_to_quay:
+    image: docker:1.11
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - docker login -u="ukhomeofficedigital+drone" -p=${CLAMAV_REPO_TOKEN} quay.io
+      - docker tag clamav quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
+      - docker push quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
+    when:
+      branch: master
+      event: push
+  
+  clamav-rest_to_quay:
+    image: docker:1.11
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - docker login -u="ukhomeofficedigital+drone" -p=${CLAMAV_REPO_TOKEN} quay.io
+      - docker tag clamav-rest quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
+      - docker push quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
+    when:
+      branch: master
+      event: push
+  
+  trigger_deploy_to_platform-services_dev:
+    image: quay.io/ukhomeofficedigital/kd:v0.2.2
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - kd \
+        --insecure-skip-tls-verify \
+        --namespace=virus-scan \
+        --kube-server=https://kube-dev.dsp.notprod.homeoffice.gov.uk \
+        --kube-token=${KUBE_TOKEN_DEV} \
+        --file k8s/clam-api.yaml
+    when:
+      branch: master
+      event: push
+
+  trigger_deploy_to_platform-services_dev:
+    image: quay.io/ukhomeofficedigital/kd:v0.2.2
+    environment:
+      - DOCKER_HOST=tcp://127.0.0.1:2375
+    commands:
+      - kd \
+        --insecure-skip-tls-verify \
+        --namespace=virus-scan \
+        --kube-server=https://kube.dsp.digital.homeoffice.gov.uk \
+        --kube-token=${KUBE_TOKEN_PROD} \
+        --file k8s/clam-api.yaml
+    when:
+      branch: tag
+      
+services:
+  dind:
+    image: docker:1.11-dind
+    privileged: true
+    command:
+      - "-s"
+      - "overlay"

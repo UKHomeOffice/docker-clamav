@@ -6,8 +6,6 @@ TAG=clamav
 COUNT=0
 PORT=3310
 
-STD_CMD="${SUDO_CMD} ${START_INSTANCE}"
-
 function tear_down() {
     if [ "${TEAR_DOWN}" == "true" ]; then
         if docker ps -a | grep ${INSTANCE} &>/dev/null ; then

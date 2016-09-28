@@ -15,5 +15,3 @@ else
   echo "freshclam not running"
   exit 1
 fi
-
-  

@@ -63,7 +63,7 @@ pipeline:
         --namespace=virus-scan \
         --kube-server=https://kube-dev.dsp.notprod.homeoffice.gov.uk \
         --kube-token=${KUBE_TOKEN_DEV} \
-        --file k8s/clam-api.yaml
+        --file k8s/clamd-api.yaml
     when:
       branch: master
       event: push
@@ -78,7 +78,7 @@ pipeline:
         --namespace=virus-scan \
         --kube-server=https://kube.dsp.digital.homeoffice.gov.uk \
         --kube-token=${KUBE_TOKEN_PROD} \
-        --file k8s/clam-api.yaml
+        --file k8s/clamd-api.yaml
     when:
       branch: tag
       

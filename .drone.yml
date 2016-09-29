@@ -36,7 +36,7 @@ pipeline:
     commands:
       - docker login -u="ukhomeofficedigital+drone" -p=${CLAMAV_REPO_TOKEN} quay.io
       - docker tag clamav quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
-#      - 'docker push quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}'
+      - docker push quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
     when:
       branch: master
       event: push
@@ -48,7 +48,7 @@ pipeline:
     commands:
       - docker login -u="ukhomeofficedigital+drone" -p=${CLAMAV_REPO_TOKEN} quay.io
       - docker tag clamav-rest quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
-#      - 'docker push quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}'
+      - docker push quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
     when:
       branch: master
       event: push

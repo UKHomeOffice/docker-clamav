@@ -15,8 +15,6 @@ spec:
         name: clamav
     spec:
       volumes:
-      - name: avdata
-        emptyDir: {}
       - name: secrets
         emptyDir: {}
       containers:
@@ -89,45 +87,50 @@ spec:
         - containerPort: 8080
           name: api
           protocol: TCP    
-        readinessProbe:
-          exec:
-            command:
-            - /healthcheck.sh
-          initialDelaySeconds: 60
-          timeoutSeconds: 2
         livenessProbe:
           exec:
             command:
             - /healthcheck.sh
           initialDelaySeconds: 60
-          timeoutSeconds: 2
+          timeoutSeconds: 10
+          periodSeconds: 30
+          failureThreshold: 10
+        readinessProbe:
+          exec:
+            command:
+            - /healthcheck.sh
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+          periodSeconds: 30
+          failureThreshold: 10
         resources:
          limits:
-          cpu: 200m
-          memory: 800M
-      - name: clamd
+          cpu: 400m
+          memory: 1000M
+      - name: clamd    
         image: quay.io/ukhomeofficedigital/clamav:${.DRONE_COMMIT_SHA}
         imagePullPolicy: Always
         ports:
         - containerPort: 3310
           name: api
           protocol: TCP
-        volumeMounts:
-          - mountPath: /var/lib/clamav
-            name: avdata
         livenessProbe:
           exec:
             command:
             - /readyness.sh
-          initialDelaySeconds: 50
-          timeoutSeconds: 2
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+          periodSeconds: 30
+          failureThreshold: 10
         readinessProbe:
           exec:
             command:
             - /readyness.sh
-          initialDelaySeconds: 50
-          timeoutSeconds: 2
+          initialDelaySeconds: 90
+          timeoutSeconds: 10
+          periodSeconds: 30
+          failureThreshold: 10
         resources:
          limits:
-          cpu: 200m
-          memory: 400M
+          cpu: 500m
+          memory: 1000M

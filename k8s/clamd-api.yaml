@@ -76,7 +76,7 @@ spec:
           - mountPath: /etc/secrets
             name: secrets
       - name: clamd-rest
-        image: quay.io/ukhomeofficedigital/clamav-rest:${.DRONE_COMMIT_SHA}
+        image: quay.io/ukhomeofficedigital/clamav-rest:{{.DRONE_COMMIT_SHA}}
         imagePullPolicy: Always
         env:
         - name: HOST
@@ -108,7 +108,7 @@ spec:
           cpu: 400m
           memory: 1000M
       - name: clamd    
-        image: quay.io/ukhomeofficedigital/clamav:${.DRONE_COMMIT_SHA}
+        image: quay.io/ukhomeofficedigital/clamav:{{.DRONE_COMMIT_SHA}}
         imagePullPolicy: Always
         ports:
         - containerPort: 3310

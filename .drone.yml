@@ -7,7 +7,7 @@ pipeline:
       - apk add --no-cache bash sed grep bc coreutils
       - ./ci-build.sh
     when:
-      event: [push, pull_request]
+      event: [push, pull_request, tag]
   
   build_clamav:
     image: docker:1.11
@@ -70,7 +70,7 @@ pipeline:
     commands:
       - kd --insecure-skip-tls-verify --namespace=virus-scan --kube-server=https://kube.dsp.digital.homeoffice.gov.uk --retries 20 --kube-token=${KUBE_TOKEN_PROD} --file k8s/clamd-api.yaml
     when:
-      branch: tag
+      event: tag
       
 services:
   dind:

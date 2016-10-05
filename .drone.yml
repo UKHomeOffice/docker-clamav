@@ -16,7 +16,7 @@ pipeline:
     commands:
       - docker build -t clamav .
     when:
-      branch: master
+      branch: [master, refs/tags/*]
       event: [push, tag]
   
   build_clamav-rest:
@@ -26,7 +26,7 @@ pipeline:
     commands:
       - docker build -t clamav-rest clamav-rest
     when:
-      branch: master
+      branch: [master, refs/tags/*]
       event: [push, tag]
   
   clamav_to_quay:
@@ -38,7 +38,7 @@ pipeline:
       - docker tag clamav quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
       - docker push quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
     when:
-      branch: master
+      branch: [master, refs/tags/*]
       event: [push, tag]
   
   clamav-rest_to_quay:
@@ -50,7 +50,7 @@ pipeline:
       - docker tag clamav-rest quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
       - docker push quay.io/ukhomeofficedigital/clamav-rest:${DRONE_COMMIT_SHA}
     when:
-      branch: master
+      branch: [master, refs/tags/*]
       event: [push, tag]
   
   trigger_deploy_to_platform-services_dev:
@@ -60,7 +60,7 @@ pipeline:
     commands:
       - kd --insecure-skip-tls-verify --namespace=virus-scan --kube-server=https://kube-dev.dsp.notprod.homeoffice.gov.uk --retries 50 --kube-token=${KUBE_TOKEN_DEV} --file k8s/clamd-api.yaml
     when:
-      branch: master
+      branch: [master, refs/tags/*]
       event: [push, tag]
 
   trigger_deploy_to_platform-services_prod:

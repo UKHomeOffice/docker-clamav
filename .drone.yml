@@ -17,7 +17,7 @@ pipeline:
       - docker build -t clamav .
     when:
       branch: master
-      event: push
+      event: [push, tag]
   
   build_clamav-rest:
     image: docker:1.11

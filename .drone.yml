@@ -34,9 +34,6 @@ pipeline:
     environment:
       - DOCKER_HOST=tcp://127.0.0.1:2375
     commands:
-      - echo $HOME
-      - mkdir -p /home/drone
-      - export HOME="/home/drone"
       - docker login -u="ukhomeofficedigital+drone" -p=${CLAMAV_REPO_TOKEN} quay.io
       - docker tag clamav quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}
       - docker push quay.io/ukhomeofficedigital/clamav:${DRONE_COMMIT_SHA}

@@ -17,9 +17,12 @@ spec:
       volumes:
       - name: secrets
         emptyDir: {}
+      - name: ca-bundle
+        secret:
+          secretName: ca-bundle
       containers:
       - name: vault-side-kick
-        image: quay.io/ukhomeofficedigital/vault-sidekick:v0.2.0
+        image: quay.io/ukhomeofficedigital/vault-sidekick:v0.3.1
         imagePullPolicy: Always
         resources:
          limits:
@@ -30,8 +33,8 @@ spec:
           cpu: 100m
         args:
           - -output=/etc/secrets
-          - -tls-skip-verify=true
-          - -cn=pki:services/${NAMESPACE}/pki/issue/default:common_name=clamav.${NAMESPACE}.svc.cluster.local,file=/etc/secrets/nginx,fmt=cert 
+          - -ca-cert=/ca/caroot.bundle
+          - -cn=pki:services/${NAMESPACE}/pki/issue/default:common_name=clamav.${NAMESPACE}.svc.cluster.local,file=/etc/secrets/nginx,fmt=cert
         env:
         - name: VAULT_ADDR
           value: "https://vault.vault.svc.cluster.local:8200"
@@ -47,6 +50,8 @@ spec:
         volumeMounts:
           - mountPath: /etc/secrets
             name: secrets
+          - name: ca-bundle
+            mountPath: /ca
       - name: nginx
         image: quay.io/ukhomeofficedigital/nginx-proxy:v1.7.0
         imagePullPolicy: Always

@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/centos-base
 
-ENV CLAM_VERSION=0.99.2
+ENV CLAM_VERSION=0.99.3
 RUN yum install -y gcc openssl-devel wget make
 
 RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.gz && \

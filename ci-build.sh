@@ -98,7 +98,7 @@ if ! wait_until_started "${RUN_FRESHCLAM_TEST}"; then
     exit 1
 fi
 
-sleep 10 #wait for clamd process to start
+sleep 25 #wait for clamd process to start
 echo "=========="
 echo "TESTING CLAMD PROCESS..."
 echo "=========="
@@ -121,7 +121,7 @@ docker run -id -p 8080:8080 --name=clamav-rest -e HOST=clamav --link clamav:clam
 #docker ps -a --filter "name=clamav-rest" --filter "status=exited" | grep clamav-rest && docker logs clamav-rest || echo "clamav-rest started successfully?" && docker ps -a
 sleep 30 #wait for app to start
 REST_CMD=$(curl -w %{http_code} -s --output /dev/null 172.17.0.1:8080)
-VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@/eicar.com" 172.17.0.1:8080/scan | grep -o false)
+VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" 172.17.0.1:8080/scan | grep -o false)
 
 if [ $REST_CMD == "200" ]; then
   if [ $VIRUS_TEST == "false" ]; then

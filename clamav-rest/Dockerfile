@@ -1,27 +1,22 @@
-FROM quay.io/ukhomeofficedigital/centos-base
+FROM quay.io/ukhomeofficedigital/openjdk8:latest
 
-MAINTAINER lokori <antti.virtanen@iki.fi>
+RUN yum update -y && \
+    yum clean all
 
-RUN yum update -y 
-RUN yum install -y java-1.8.0-openjdk
+# Add clamav user
+RUN groupadd -r clamav && \
+    useradd -r -g clamav clamav -d /var/clamav-rest/&& \
+    mkdir -p /var/clamav-rest/ && \
+    chown -R clamav:clamav /var/clamav-rest/
 
-# jar command
-RUN yum install -y java-1.8.0-openjdk-devel
+USER clamav
 
-RUN yum clean all
-
-# Set environment variables.
-ENV HOME /root
-
-# Get the JAR file 
-CMD mkdir /var/clamav-rest
+# Get the JAR file
 COPY target/clamav-rest-1.0.0.jar /var/clamav-rest/
-COPY healthcheck.sh /healthcheck.sh
-# Define working directory.
-WORKDIR /var/clamav-rest/
+COPY healthcheck.sh /var/clamav-rest/healthcheck.sh
+COPY bootstrap.sh /var/clamav-rest/bootstrap.sh
 
-# Open up the server 
+# Open up the server
 EXPOSE 8080
 
-ADD bootstrap.sh /
-ENTRYPOINT ["/bootstrap.sh"]
+ENTRYPOINT ["/var/clamav-rest/bootstrap.sh"]

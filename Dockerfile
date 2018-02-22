@@ -1,25 +1,37 @@
 FROM quay.io/ukhomeofficedigital/centos-base
 
 ENV CLAM_VERSION=0.99.3
-RUN yum install -y gcc openssl-devel wget make
+
+RUN yum update -y && \
+    yum install -y gcc openssl-devel wget make
 
 RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.gz && \
     tar xvzf clamav-${CLAM_VERSION}.tar.gz && \
     cd clamav-${CLAM_VERSION} && \
     ./configure && \
-    make && make install
+    make && make install && \
+    yum remove -y gcc make && \
+    yum clean all
 
-RUN  mkdir /usr/local/share/clamav && mkdir /var/lib/clamav
+# Add clamav user
+RUN groupadd -r clamav && \
+    useradd -r -g clamav clamav -d /var/lib/clamav && \
+    mkdir -p /var/lib/clamav && \
+    mkdir /usr/local/share/clamav && \
+    chown -R clamav:clamav /var/lib/clamav /usr/local/share/clamav
 
+# initial update of av databases
+RUN wget -t 5 -T 99999 -O /var/lib/clamav/main.cvd http://database.clamav.net/main.cvd && \
+    wget -t 5 -T 99999 -O /var/lib/clamav/daily.cvd http://database.clamav.net/daily.cvd && \
+    wget -t 5 -T 99999 -O /var/lib/clamav/bytecode.cvd http://database.clamav.net/bytecode.cvd && \
+    chown clamav:clamav /var/lib/clamav/*.cvd
 
-RUN wget -O /var/lib/clamav/main.cvd http://database.clamav.net/main.cvd && \
-    wget -O /var/lib/clamav/daily.cvd http://database.clamav.net/daily.cvd && \
-    wget -O /var/lib/clamav/bytecode.cvd http://database.clamav.net/bytecode.cvd
-    
-RUN yum remove -y gcc make wget #cleanup
-RUN yum update -y && yum clean all
+# permissions
 RUN mkdir /var/run/clamav && \
+    chown clamav:clamav /var/run/clamav && \
     chmod 750 /var/run/clamav
+
+USER clamav
 
 # Configure Clam AV...
 ADD ./*.conf /usr/local/etc/

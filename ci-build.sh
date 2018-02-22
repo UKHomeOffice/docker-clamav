@@ -27,7 +27,7 @@ function wait_until_started() {
     fi
     while ! $cmd; do
         echo "waiting for command to succeed"
-        ((retries++)) 
+        ((retries++))
         if ((retries==max_retries)); then
            echo "Test Failed"
            return 1
@@ -98,12 +98,12 @@ if ! wait_until_started "${RUN_FRESHCLAM_TEST}"; then
     exit 1
 fi
 
-sleep 10 #wait for clamd process to start
+sleep 25 #wait for clamd process to start
 echo "=========="
 echo "TESTING CLAMD PROCESS..."
 echo "=========="
 
-RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan eicar.com | grep -q 'Infected files: 1'")
+RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan /eicar.com | grep -q 'Infected files: 1'")
 #echo ${RUN_CLAMD_TEST}
 
 if ! wait_until_started "${RUN_CLAMD_TEST}"; then
@@ -136,7 +136,3 @@ else
   echo "rest api not starting."
   exit 1
 fi
-  
-  
-  
-  

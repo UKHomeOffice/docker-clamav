@@ -8,7 +8,7 @@ pipeline:
       - ./ci-build.sh
     when:
       event: [push, pull_request]
-  
+
   build_clamav:
     image: docker:17.09.0-ce
     environment:
@@ -18,7 +18,7 @@ pipeline:
     when:
       branch: master
       event: [push, tag]
-  
+
   build_clamav-rest:
     image: docker:17.09.0-ce
     environment:
@@ -28,7 +28,7 @@ pipeline:
     when:
       branch: master
       event: [push, tag]
- 
+
   clamav_to_quay:
     image: docker:17.09.0-ce
     secrets:
@@ -44,20 +44,7 @@ pipeline:
     when:
       branch: master
       event: push
- 
-  tagged_clamav_to_quay:
-    image: docker:17.09.0-ce
-    secrets:
-      - clamav_repo_token
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - docker login -u="ukhomeofficedigital+drone" -p=$${CLAMAV_REPO_TOKEN} quay.io
-      - docker tag clamav:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/clamav:$${DRONE_TAG}
-      - docker push quay.io/ukhomeofficedigital/clamav:$${DRONE_TAG}
-    when:
-      event: tag
-  
+
   clamav-rest_to_quay:
     image: docker:17.09.0-ce
     secrets:
@@ -73,7 +60,20 @@ pipeline:
     when:
       branch: master
       event: push
-  
+
+  tagged_clamav_to_quay:
+    image: docker:17.09.0-ce
+    secrets:
+      - clamav_repo_token
+    environment:
+      - DOCKER_HOST=tcp://172.17.0.1:2375
+    commands:
+      - docker login -u="ukhomeofficedigital+drone" -p=$${CLAMAV_REPO_TOKEN} quay.io
+      - docker tag clamav:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/clamav:$${DRONE_TAG}
+      - docker push quay.io/ukhomeofficedigital/clamav:$${DRONE_TAG}
+    when:
+      event: tag
+
   tagged_clamav-rest_to_quay:
     image: docker:17.09.0-ce
     secrets:
@@ -86,25 +86,3 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_TAG}
     when:
       event: tag
- 
-  trigger_deploy_to_platform-services_dev:
-    image: quay.io/ukhomeofficedigital/kd:v0.2.2
-    secrets:
-      - kube_token_dev
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - kd --insecure-skip-tls-verify --namespace=virus-scan --kube-server=https://kube-dev.dsp.notprod.homeoffice.gov.uk --retries 50 --kube-token=$${KUBE_TOKEN_DEV} --file k8s/clamd-api.yaml
-    when:
-      event: deploy
- 
-  trigger_deploy_to_platform-services_prod:
-    image: quay.io/ukhomeofficedigital/kd:v0.2.2
-    secrets:
-      - kube_token_prod
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - kd --insecure-skip-tls-verify --namespace=virus-scan --kube-server=https://kube.dsp.digital.homeoffice.gov.uk --retries 50 --kube-token=$${KUBE_TOKEN_PROD} --file k8s/clamd-api.yaml
-    when:
-      event: deploy

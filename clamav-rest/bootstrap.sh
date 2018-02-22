@@ -9,4 +9,4 @@ timeout=${TIMEOUT:-15000}
 echo "using clamd server: $host:$port timeout: $timeout"
 
 # start in background
-java -jar /var/clamav-rest/clamav-rest-1.0.0.jar --clamd.host=$host --clamd.port=$port --clamd.timeout=$timeout
+java -jar /var/clamav-rest/clamav-rest-1.0.2.jar --clamd.host=$host --clamd.port=$port --clamd.timeout=$timeout

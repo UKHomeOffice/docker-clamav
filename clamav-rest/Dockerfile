@@ -12,7 +12,7 @@ RUN groupadd -r clamav && \
 USER clamav
 
 # Get the JAR file
-COPY target/clamav-rest-1.0.0.jar /var/clamav-rest/
+COPY target/clamav-rest-1.0.2.jar /var/clamav-rest/
 COPY healthcheck.sh /var/clamav-rest/healthcheck.sh
 COPY bootstrap.sh /var/clamav-rest/bootstrap.sh
 

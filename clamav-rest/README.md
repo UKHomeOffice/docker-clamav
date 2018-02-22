@@ -1,5 +1,7 @@
 Simple [ClamAV](http://www.clamav.net/) REST proxy. Builds on top of [clamav-java](https://github.com/solita/clamav-java) which is a minimal Java client for ClamAV.
 
+[![Build Status](https://travis-ci.org/solita/clamav-rest.svg?branch=master)](https://travis-ci.org/solita/clamav-rest)
+
 # What is it?
 
 ## The big picture
@@ -38,7 +40,7 @@ Or you can build the JAR. This creates a stand-alone JAR with embedded [Jetty se
 Starting the REST service is quite straightforward.
 
 ```
-  java -jar clamav-rest-1.0.0.jar --server.port=8765 --clamd.host=myprecious.clamd.serv.er --clamd.port=3310
+  java -jar clamav-rest-1.0.2.jar --server.port=8765 --clamd.host=myprecious.clamd.serv.er --clamd.port=3310
 ```
 
 ## Setting up local clamd virtual server

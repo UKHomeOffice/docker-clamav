@@ -27,7 +27,7 @@ function wait_until_started() {
     fi
     while ! $cmd; do
         echo "waiting for command to succeed"
-        ((retries++)) 
+        ((retries++))
         if ((retries==max_retries)); then
            echo "Test Failed"
            return 1
@@ -103,7 +103,7 @@ echo "=========="
 echo "TESTING CLAMD PROCESS..."
 echo "=========="
 
-RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan eicar.com | grep -q 'Infected files: 1'")
+RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan /eicar.com | grep -q 'Infected files: 1'")
 #echo ${RUN_CLAMD_TEST}
 
 if ! wait_until_started "${RUN_CLAMD_TEST}"; then
@@ -121,7 +121,7 @@ docker run -id -p 8080:8080 --name=clamav-rest -e HOST=clamav --link clamav:clam
 #docker ps -a --filter "name=clamav-rest" --filter "status=exited" | grep clamav-rest && docker logs clamav-rest || echo "clamav-rest started successfully?" && docker ps -a
 sleep 30 #wait for app to start
 REST_CMD=$(curl -w %{http_code} -s --output /dev/null 172.17.0.1:8080)
-VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" 172.17.0.1:8080/scan | grep -o false)
+VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@/eicar.com" 172.17.0.1:8080/scan | grep -o false)
 
 if [ $REST_CMD == "200" ]; then
   if [ $VIRUS_TEST == "false" ]; then
@@ -136,7 +136,3 @@ else
   echo "rest api not starting."
   exit 1
 fi
-  
-  
-  
-  

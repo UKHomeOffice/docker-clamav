@@ -36,13 +36,13 @@ To use with [Kubernetes](http://kubernetes.io/) see the [kubernetes examples](ex
 The variables and the defaults are shown below.
 By default, the container does not depend on [Kubernetes](http://kubernetes.io/). 
 
-* `CLAMD_SETTINGS_CSV="LogVerbose yes,VirusEvent /custom_alert.sh"` See [clamd.conf](http://linux.die.net/man/5/clamd.conf) for more details  
+* `CLAMD_SETTINGS_CSV="LogVerbose=yes,VirusEvent=/custom_alert.sh"` See [clamd.conf](http://linux.die.net/man/5/clamd.conf) for more details  
   and see [./clamd.conf](./clamd.conf) for the default settings.  
-  To use specify a CSV of settings as they would apear in the config file e.g. `"CLAMD_SETTINGS_CSV=Setting value"`
+  To use specify a CSV of settings using Key=Value (not Key Value as the clamd.conf file) e.g. `"CLAMD_SETTINGS_CSV='Setting=value'"`
   Note, clamd has already been configured appropriately for a container but some useful settings include:    
-  * `VirusEvent /path/to/alert_script.sh` If mounted in the container, will provide a custom alert facility
-  * `LogClean yes` Will log every scan performed
-* `FRESHCLAM_SETTINGS_CSV="LogVerbose yes"` See [freshclam.conf](http://linux.die.net/man/5/freshclam.conf) for more details  
+  * `VirusEvent=/path/to/alert_script.sh` If mounted in the container, will provide a custom alert facility
+  * `LogClean=yes` Will log every scan performed
+* `FRESHCLAM_SETTINGS_CSV="LogVerbose=yes"` See [freshclam.conf](http://linux.die.net/man/5/freshclam.conf) for more details  
   and see [./freshclam.conf](freshclam.conf) for the default settings. See above for how this works.  
 * `UPDATE=true` (default) will start freshclam daemon in background to watch for update antivirus definitions  
   `UPDATE=false` will watch for first successful update from separate sidecar container before starting

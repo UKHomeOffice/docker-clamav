@@ -26,17 +26,18 @@ RUN wget -t 5 -T 99999 -O /var/lib/clamav/main.cvd http://database.clamav.net/ma
     wget -t 5 -T 99999 -O /var/lib/clamav/bytecode.cvd http://database.clamav.net/bytecode.cvd && \
     chown clamav:clamav /var/lib/clamav/*.cvd
 
-# permissions
-RUN mkdir /var/run/clamav && \
-    chown clamav:clamav /var/run/clamav && \
-    chmod 750 /var/run/clamav
-
-USER clamav
-
 # Configure Clam AV...
 ADD ./*.conf /usr/local/etc/
 ADD eicar.com /
 ADD ./readyness.sh /
+
+# permissions
+RUN mkdir /var/run/clamav && \
+    chown clamav:clamav /var/run/clamav && \
+    chmod 750 /var/run/clamav && \
+    chown -R clamav:clamav /usr/local/etc
+
+USER clamav
 
 VOLUME /var/lib/clamav
 

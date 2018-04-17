@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/centos-base
 
-ENV CLAM_VERSION=0.99.3
+ENV CLAM_VERSION=0.99.4
 
 RUN yum update -y && \
     yum install -y gcc openssl-devel wget make
@@ -15,7 +15,7 @@ RUN wget https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.tar.
 
 # Add clamav user
 RUN groupadd -r clamav && \
-    useradd -r -g clamav clamav -d /var/lib/clamav && \
+    useradd -r -g clamav -u 1000 clamav -d /var/lib/clamav && \
     mkdir -p /var/lib/clamav && \
     mkdir /usr/local/share/clamav && \
     chown -R clamav:clamav /var/lib/clamav /usr/local/share/clamav
@@ -31,7 +31,7 @@ RUN mkdir /var/run/clamav && \
     chown clamav:clamav /var/run/clamav && \
     chmod 750 /var/run/clamav
 
-USER clamav
+USER 1000
 
 # Configure Clam AV...
 ADD ./*.conf /usr/local/etc/

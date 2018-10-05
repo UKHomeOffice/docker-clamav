@@ -1,4 +1,4 @@
-FROM quay.io/ukhomeofficedigital/centos-base
+FROM quay.io/ukhomeofficedigital/centos-base:latest
 
 ENV CLAM_VERSION=0.99.4
 

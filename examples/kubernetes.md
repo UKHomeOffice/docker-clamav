@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: clamd
-        image: quay.io/ukhomeofficedigital/clamav:v0.1.1
+        image: quay.io/ukhomeofficedigital/clamav:v1.6.1
         env:
         - name: UPDATE
           value: "false"
@@ -43,7 +43,7 @@ spec:
           initialDelaySeconds: 20
           timeoutSeconds: 2
       - name: freshclam
-        image: quay.io/ukhomeofficedigital/clamav:v0.1.1
+        image: quay.io/ukhomeofficedigital/clamav:v1.6.1
         env:
         - name: UPDATE_ONLY
           value: "true"

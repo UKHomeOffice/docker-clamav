@@ -1,6 +1,7 @@
 pipeline:
+
   test_build:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
@@ -10,7 +11,7 @@ pipeline:
       event: [push, pull_request]
 
   build_clamav:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
@@ -20,17 +21,17 @@ pipeline:
       event: [push, tag]
 
   build_clamav-rest:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
       - docker build -t clamav-rest:$${DRONE_COMMIT_SHA} clamav-rest
     when:
       branch: master
-      event: [push, tag]
-
+      event: [push, tag] 
+  
   clamav_to_quay:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     secrets:
       - clamav_repo_token
     environment:
@@ -46,7 +47,7 @@ pipeline:
       event: push
 
   clamav-rest_to_quay:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     secrets:
       - clamav_repo_token
     environment:
@@ -62,7 +63,7 @@ pipeline:
       event: push
 
   tagged_clamav_to_quay:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     secrets:
       - clamav_repo_token
     environment:
@@ -75,7 +76,7 @@ pipeline:
       event: tag
 
   tagged_clamav-rest_to_quay:
-    image: docker:17.09.0-ce
+    image: docker:18.09
     secrets:
       - clamav_repo_token
     environment:

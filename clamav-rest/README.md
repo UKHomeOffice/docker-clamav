@@ -14,12 +14,12 @@ For more general information, see also [our blog post](http://dev.solita.fi/2015
 
 ## The technical details
 
-This is a REST proxy server with support for basic INSTREAM scanning and PING command. 
+This is a REST proxy server with support for basic INSTREAM scanning and PING command.
 
 Clamd protocol is explained here:
 http://linux.die.net/man/8/clamd
 
-Clamd protocol contains command such as shutdown so exposing clamd directly to external services is not a feasible option. Accessing clamd directly is fine if you are running single application and it's on the localhost. 
+Clamd protocol contains command such as shutdown so exposing clamd directly to external services is not a feasible option. Accessing clamd directly is fine if you are running single application and it's on the localhost.
 
 ## An example to build on
 
@@ -67,6 +67,5 @@ EICAR is a test file which is recognized as a virus by scanners even though it's
 
 Copyright © 2014 [Solita](http://www.solita.fi)
 
-Distributed under the GNU Lesser General Public License, either version 2.1 of the License, or 
+Distributed under the GNU Lesser General Public License, either version 2.1 of the License, or
 (at your option) any later version.
-

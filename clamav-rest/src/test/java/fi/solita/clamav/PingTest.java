@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * These tests assume clamav-rest Docker container is running and responding locally.
+ * These tests assume clamav-rest Docker container is running and responding locally. 
  */
 public class PingTest {
 

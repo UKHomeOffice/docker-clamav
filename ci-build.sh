@@ -25,8 +25,8 @@ function wait_until_started() {
     if [[ $cmd == WARNING* ]]; then
         cmd=""
     fi
-    while ! $cmd; do
-        echo "waiting for command to succeed"
+    while ! eval $cmd; do
+        echo "waiting for command to succeed ('$cmd')"
         ((retries++))
         if ((retries==max_retries)); then
            echo "Test Failed"
@@ -91,19 +91,18 @@ echo "=========="
 echo "TESTING FRESHCLAM PROCESS..."
 echo "=========="
 
-RUN_FRESHCLAM_TEST=$(docker exec -t clamav bash -c "freshclam | grep -q 'bytecode.cvd is up to date'")
+RUN_FRESHCLAM_TEST='docker exec -t clamav bash -c "freshclam" | grep -q "bytecode.cvd is up to date"'
 if ! wait_until_started "${RUN_FRESHCLAM_TEST}"; then
     echo "Error, not started in time..."
     docker logs clamav
     exit 1
 fi
 
-sleep 30 #wait for clamd process to start
 echo "=========="
 echo "TESTING CLAMD PROCESS..."
 echo "=========="
 
-RUN_CLAMD_TEST=$(docker exec -t clamav bash -c "clamdscan /eicar.com | grep -q 'Infected files: 1'")
+RUN_CLAMD_TEST='docker exec -t clamav bash -c "clamdscan /eicar.com" | grep -q "Infected files: 1"'
 if ! wait_until_started "${RUN_CLAMD_TEST}"; then
     echo "Error, not started in time..."
     docker logs clamav
@@ -127,7 +126,7 @@ VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" 172.17.0.1:8080/s
 if [ $REST_CMD == "200" ]; then
   if [ $VIRUS_TEST == "false" ]; then
       echo "SUCCESS rest api working and detecting viruses correctly"
-      clean_up "delete-images"
+      clean_up
       exit 0
   else
     echo "FAILED rest api not detecting correctly"

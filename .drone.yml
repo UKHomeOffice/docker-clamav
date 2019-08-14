@@ -13,14 +13,12 @@ pipeline:
   scan-clamav:
     image: quay.io/ukhomeofficedigital/anchore-submission:latest
     image_name: clamav
-    local_image: true
     when:
       event: push
 
   scan-clamav-rest:
     image: quay.io/ukhomeofficedigital/anchore-submission:latest
     image_name: clamav-rest
-    local_image: true
     when:
       event: push
 

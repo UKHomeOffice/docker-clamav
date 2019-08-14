@@ -125,14 +125,13 @@ VIRUS_TEST=$(curl -s -F "name=test-virus" -F "file=@eicar.com" 172.17.0.1:8080/s
 
 if [ $REST_CMD == "200" ]; then
   if [ $VIRUS_TEST == "false" ]; then
-      echo "SUCCESS rest api working and detecting viruses correctly"
-      clean_up
-      exit 0
-  else
-    echo "FAILED rest api not detecting correctly"
-    exit 1
+    echo "SUCCESS rest api working and detecting viruses correctly"
+    clean_up
+    exit 0
   fi
-else
-  echo "rest api not starting."
+  echo "FAILED rest api not detecting correctly"
   exit 1
 fi
+
+echo "rest api not starting."
+exit 1

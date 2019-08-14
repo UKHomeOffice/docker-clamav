@@ -8,7 +8,19 @@ pipeline:
       - apk add --no-cache bash sed grep bc coreutils curl
       - ./ci-build.sh
     when:
-      event: [push, pull_request]
+      event: push
+
+  scan-clamav:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    image_name: clamav
+    when:
+      event: push
+
+  scan-clamav-rest:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    image_name: clamav-rest
+    when:
+      event: push
 
   build_clamav:
     image: docker:18.09
@@ -28,8 +40,8 @@ pipeline:
       - docker build -t clamav-rest:$${DRONE_COMMIT_SHA} clamav-rest
     when:
       branch: master
-      event: [push, tag] 
-  
+      event: [push, tag]
+
   clamav_to_quay:
     image: docker:18.09
     secrets:

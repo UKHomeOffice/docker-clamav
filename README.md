@@ -25,7 +25,7 @@ Optionally:
 The example below will start a single ClamAV instance.
 
 ```
-docker run --name clamav -d -p 3310:3310 quay.io/ukhomeofficedigital/clamav:v1.6.1
+docker run --name clamav -d -p 3310:3310 quay.io/ukhomeofficedigital/clamav:latest
 ```
 
 To use with [Kubernetes][Kubernetes link] see the [kubernetes examples](examples/kubernetes.md).

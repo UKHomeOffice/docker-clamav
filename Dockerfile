@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/centos-base:latest
 
-ENV CLAM_VERSION=0.101.2
+ENV CLAM_VERSION=0.101.3
 
 RUN yum update -y -q && \
     yum install -y -q gcc-c++ openssl-devel wget make
@@ -17,7 +17,7 @@ RUN wget -nv https://www.clamav.net/downloads/production/clamav-${CLAM_VERSION}.
     make && make install && \
     rm -rf /clamav-${CLAM_VERSION} && \
     rm -rf /tmp/talos.pub && \
-    yum remove -y -q make gcc-c++ openssl-devel && \
+    yum remove -y -q wget make gcc-c++ openssl-devel kernel-headers && \
     yum clean all
 
 # Add clamav user
@@ -36,7 +36,7 @@ COPY --chown=clamav:clamav ./readyness.sh /
 # initial update of av databases
 RUN freshclam && \
     chown clamav:clamav /var/lib/clamav/*.cvd
-    
+
 # permissions
 RUN mkdir /var/run/clamav && \
     chown clamav:clamav /var/run/clamav && \

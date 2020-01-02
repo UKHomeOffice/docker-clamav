@@ -99,3 +99,4 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_TAG}
     when:
       event: tag
+

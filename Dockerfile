@@ -1,6 +1,6 @@
 FROM quay.io/ukhomeofficedigital/centos-base:latest
 
-ENV CLAM_VERSION=0.101.3
+ENV CLAM_VERSION=0.102.1
 
 RUN yum update -y -q && \
     yum install -y -q gcc-c++ openssl-devel wget make

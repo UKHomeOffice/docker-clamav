@@ -1,9 +1,9 @@
-FROM openjdk:14-alpine as builder
+FROM openjdk:15-alpine as builder
 COPY . .
 RUN apk add maven && mvn install -DskipTests
 RUN find / | grep clamav-rest-.*.jar
 
-FROM openjdk:14-alpine
+FROM openjdk:15-alpine
 
 RUN apk -U upgrade && apk -U add curl
 

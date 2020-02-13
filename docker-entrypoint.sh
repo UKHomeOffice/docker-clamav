@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # bootstrap clam av service and clam av database updater
 set -m
 

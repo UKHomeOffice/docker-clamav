@@ -1,7 +1,5 @@
 # Docker ClamAV
 
-[![Build Status](https://travis-ci.org/UKHomeOffice/docker-clamav.svg?branch=master)](https://travis-ci.org/UKHomeOffice/docker-clamav)
-
 Docker container for starting a [ClamAV](http://www.clamav.net/) daemon.
 
 ## Getting Started

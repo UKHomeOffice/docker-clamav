@@ -18,8 +18,8 @@ function tear_down() {
 }
 
 function wait_until_started() {
-    max_retries=20
-    wait_time=${WAIT_TIME:-5}
+    max_retries=10
+    wait_time=${WAIT_TIME:-30}
     retries=0
     cmd="$*"
     if [[ $cmd == WARNING* ]]; then
@@ -91,7 +91,7 @@ echo "=========="
 echo "TESTING FRESHCLAM PROCESS..."
 echo "=========="
 
-RUN_FRESHCLAM_TEST='docker exec -t clamav bash -c "freshclam" | grep -q "bytecode.cvd is up to date"'
+RUN_FRESHCLAM_TEST='docker exec -t clamav sh -c "freshclam" | grep -q "bytecode.cvd already up-to-date"'
 if ! wait_until_started "${RUN_FRESHCLAM_TEST}"; then
     echo "Error, not started in time..."
     docker logs clamav
@@ -102,7 +102,7 @@ echo "=========="
 echo "TESTING CLAMD PROCESS..."
 echo "=========="
 
-RUN_CLAMD_TEST='docker exec -t clamav bash -c "clamdscan /eicar.com" | grep -q "Infected files: 1"'
+RUN_CLAMD_TEST='docker exec -t clamav sh -c "clamdscan /eicar.com" | grep -q "Infected files: 1"'
 if ! wait_until_started "${RUN_CLAMD_TEST}"; then
     echo "Error, not started in time..."
     docker logs clamav

@@ -18,7 +18,7 @@ pipeline:
 
   scan-clamav-rest:
     image: quay.io/ukhomeofficedigital/anchore-submission:latest
-    image_name: clamav-rest
+    image_name: go-clamav-rest
     when:
       event: push
 
@@ -37,7 +37,7 @@ pipeline:
     environment:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
-      - docker build -t clamav-rest:$${DRONE_COMMIT_SHA} clamav-rest
+      - docker build -t go-clamav-rest:$${DRONE_COMMIT_SHA} go-clamav-rest
     when:
       branch: master
       event: [push, tag]
@@ -66,10 +66,10 @@ pipeline:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
       - docker login -u="ukhomeofficedigital+drone" -p=$${CLAMAV_REPO_TOKEN} quay.io
-      - docker tag clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_COMMIT_SHA}
-      - docker tag clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/clamav-rest:latest
-      - docker push quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_COMMIT_SHA}
-      - docker push quay.io/ukhomeofficedigital/clamav-rest:latest
+      - docker tag go-clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/go-clamav-rest:$${DRONE_COMMIT_SHA}
+      - docker tag go-clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/go-clamav-rest:latest
+      - docker push quay.io/ukhomeofficedigital/go-clamav-rest:$${DRONE_COMMIT_SHA}
+      - docker push quay.io/ukhomeofficedigital/go-clamav-rest:latest
     when:
       branch: master
       event: push
@@ -95,7 +95,7 @@ pipeline:
       - DOCKER_HOST=tcp://172.17.0.1:2375
     commands:
       - docker login -u="ukhomeofficedigital+drone" -p=$${CLAMAV_REPO_TOKEN} quay.io
-      - docker tag clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_TAG}
-      - docker push quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_TAG}
+      - docker tag go-clamav-rest:$${DRONE_COMMIT_SHA} quay.io/ukhomeofficedigital/go-clamav-rest:$${DRONE_TAG}
+      - docker push quay.io/ukhomeofficedigital/go-clamav-rest:$${DRONE_TAG}
     when:
       event: tag

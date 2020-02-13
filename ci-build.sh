@@ -47,9 +47,9 @@ function clean_up() {
         echo "No clamav container found."
     fi
 
-    if docker ps -a --filter "name=clamav-rest" | grep clamav-rest &>/dev/null; then
+    if docker ps -a --filter "name=go-clamav-rest" | grep go-clamav-rest &>/dev/null; then
         echo "Removing old clamav-rest container..."
-        docker stop clamav-rest &>/dev/null && docker rm clamav-rest &>/dev/null
+        docker stop go-clamav-rest &>/dev/null && docker rm go-clamav-rest &>/dev/null
     else
         echo "No clamav-rest container found."
     fi
@@ -63,9 +63,9 @@ function clean_up() {
             echo "No clamav image found."
         fi
 
-        if docker images clamav-rest | grep clamav-rest &>/dev/null; then
+        if docker images go-clamav-rest | grep go-clamav-rest &>/dev/null; then
             echo "Removing clamav-rest image..."
-            docker rmi clamav-rest
+            docker rmi go-clamav-rest
         else
             echo "No clamav-rest image found."
         fi
@@ -114,10 +114,10 @@ echo "=========="
 echo "TESTING REST API..."
 echo "=========="
 
-docker build -t ${TAG}-rest clamav-rest
+docker build -t go-${TAG}-rest go-clamav-rest
 
 #start container.
-docker run -id -p 8080:8080 --name=clamav-rest -e HOST=clamav --link clamav:clamav clamav-rest
+docker run -id -p 8080:8080 --name=go-clamav-rest --link clamav:clamav go-clamav-rest -host clamav
 sleep 30 #wait for app to start
 
 REST_CMD=$(curl -w %{http_code} -s --output /dev/null 172.17.0.1:8080)

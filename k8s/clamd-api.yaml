@@ -81,21 +81,16 @@ spec:
           - mountPath: /etc/secrets
             name: secrets
       - name: clamd-rest
-        image: quay.io/ukhomeofficedigital/clamav-rest:{{.DRONE_COMMIT_SHA}}
+        image: quay.io/ukhomeofficedigital/go-clamav-rest:{{.DRONE_COMMIT_SHA}}
         imagePullPolicy: Always
-        env:
-        - name: HOST
-          value: localhost
-        - name: PORT
-          value: '3310'
         ports:
         - containerPort: 8080
           name: api
           protocol: TCP    
         readinessProbe:
-          exec:
-            command:
-            - /healthcheck.sh
+          httpGet:
+            path: /healthz
+            port: 8080
           initialDelaySeconds: 60
           timeoutSeconds: 10
           periodSeconds: 30

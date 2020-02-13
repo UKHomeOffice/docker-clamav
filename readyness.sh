@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 set -e
 
-if freshclam | grep -q 'bytecode.* is up to date'; then
+if freshclam | grep -q 'bytecode.cvd already up-to-date'; then
   echo "freshclam running successfully"
   if clamdscan eicar.com | grep -q 'Infected files: 1'; then
     echo "Clamd running successfully"

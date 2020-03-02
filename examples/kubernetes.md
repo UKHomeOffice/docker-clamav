@@ -58,6 +58,5 @@ spec:
           timeoutSeconds: 2
       volumes:
       - name: avdata
-        source:
-          emptyDir: {}
+        emptyDir: {}
 ```

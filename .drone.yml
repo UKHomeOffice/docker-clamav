@@ -1,27 +1,15 @@
 pipeline:
 
-  test_build:
-    image: docker:18.09
-    environment:
-      - DOCKER_HOST=tcp://172.17.0.1:2375
-    commands:
-      - apk add --no-cache bash sed grep bc coreutils curl
-      - ./ci-build.sh
-    when:
-      event: push
-
-  scan-clamav:
-    image: quay.io/ukhomeofficedigital/anchore-submission:latest
-    image_name: clamav
-    when:
-      event: push
-
-  scan-clamav-rest:
-    image: quay.io/ukhomeofficedigital/anchore-submission:latest
-    image_name: clamav-rest
-    when:
-      event: push
-
+#  test_build:
+#    image: docker:18.09
+#    environment:
+#      - DOCKER_HOST=tcp://172.17.0.1:2375
+#    commands:
+#      - apk add --no-cache bash sed grep bc coreutils curl
+#      - ./ci-build.sh
+#    when:
+#      event: push
+#
   build_clamav:
     image: docker:18.09
     environment:
@@ -29,7 +17,6 @@ pipeline:
     commands:
       - docker build -t clamav:$${DRONE_COMMIT_SHA} .
     when:
-      branch: master
       event: [push, tag]
 
   build_clamav-rest:
@@ -39,8 +26,23 @@ pipeline:
     commands:
       - docker build -t clamav-rest:$${DRONE_COMMIT_SHA} clamav-rest
     when:
-      branch: master
       event: [push, tag]
+
+  scan-clamav:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    image_name: clamav:${DRONE_COMMIT_SHA}
+    fail_on_detection: false
+    local_image: true
+    when:
+      event: push
+
+  scan-clamav-rest:
+    image: quay.io/ukhomeofficedigital/anchore-submission:latest
+    image_name: clamav-rest:${DRONE_COMMIT_SHA}
+    fail_on_detection: false
+    local_image: true
+    when:
+      event: push
 
   clamav_to_quay:
     image: docker:18.09
@@ -99,4 +101,3 @@ pipeline:
       - docker push quay.io/ukhomeofficedigital/clamav-rest:$${DRONE_TAG}
     when:
       event: tag
-
